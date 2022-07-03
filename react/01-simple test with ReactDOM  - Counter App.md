@@ -98,6 +98,7 @@ test('counter increments and decrements when the buttons are clicked', () => {
   expect(message.textContent).toBe('Current count: 0')
 })
 ```
+
 ## Extra Credit
 
 ### 1. 💯 use dispatchEvent
@@ -119,9 +120,44 @@ new MouseEvent('click', {
 })
 ```
 
-## 🦉 Elaboration and Feedback
+```js
+import {act} from 'react-dom/test-utils'
+import {createRoot} from 'react-dom/client'
+import Counter from '../../components/counter'
 
-After the instruction, if you want to remember what you've just learned, then
-fill out the elaboration and feedback form:
+// NOTE: this is a new requirement in React 18
+// https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#configuring-your-testing-environment
+// Luckily, it's handled for you by React Testing Library :)
+global.IS_REACT_ACT_ENVIRONMENT = true
 
-https://ws.kcd.im/?ws=Testing%20React%20Applications%20%F0%9F%A7%90&e=01%3A%20simple%20test%20with%20ReactDOM&em=
+beforeEach(() => {
+  document.body.innerHTML = ''
+})
+
+test('counter increments and decrements when the buttons are clicked', () => {
+  const div = document.createElement('div')
+  document.body.append(div)
+
+  const root = createRoot(div)
+  act(() => root.render(<Counter />))
+  const [decrement, increment] = div.querySelectorAll('button')
+  const message = div.firstChild.querySelector('div')
+
+  expect(message.textContent).toBe('Current count: 0')
+  const incrementClickEvent = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    button: 0,
+  })
+  act(() => increment.dispatchEvent(incrementClickEvent))
+  expect(message.textContent).toBe('Current count: 1')
+  const decrementClickEvent = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    button: 0,
+  })
+  act(() => decrement.dispatchEvent(decrementClickEvent))
+  expect(message.textContent).toBe('Current count: 0')
+})
+```
+
